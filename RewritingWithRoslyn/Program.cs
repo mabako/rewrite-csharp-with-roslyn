@@ -24,6 +24,11 @@ namespace RewritingWithRoslyn
                 var root = await document.GetSyntaxRootAsync()
                            ?? throw new Exception($"Could not get syntax root for {document.FilePath}");
                 var result = rewriter.Visit(root);
+
+                var model = await document.GetSemanticModelAsync()
+                            ?? throw new Exception($"Could not get semantic model for {document.FilePath}");
+                new SemanticVisitor(model).Visit(root);
+
                 if (!result.IsEquivalentTo(root)) {
                     await File.WriteAllTextAsync(document.FilePath, result.ToFullString());
                 }
